@@ -37,6 +37,7 @@ The outermost layer handling user interface:
 ### Prerequisites
 - Node.js (v18 or higher)
 - npm or yarn
+- PostgreSQL (v12 or higher) OR Docker
 
 ### Installation
 
@@ -45,17 +46,38 @@ The outermost layer handling user interface:
    npm install
    ```
 
-2. **Build the project:**
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` file with your database configuration.
+
+3. **Option A: Using Docker (Recommended):**
+   ```bash
+   # Start PostgreSQL with Docker Compose
+   docker-compose up -d postgres
+   
+   # Run migrations
+   npm run migration:run
+   ```
+
+4. **Option B: Using local PostgreSQL:**
+   - Install PostgreSQL locally
+   - Create database: `cleanarchdb`
+   - Update `.env` with your credentials
+   - Run migrations: `npm run migration:run`
+
+5. **Build the project:**
    ```bash
    npm run build
    ```
 
-3. **Start development server:**
+6. **Start development server:**
    ```bash
    npm run dev
    ```
 
-4. **Start production server:**
+7. **Start production server:**
    ```bash
    npm start
    ```
@@ -164,6 +186,28 @@ When adding new features:
 4. Create infrastructure implementations
 5. Add presentation layer controllers
 6. Write comprehensive tests
+
+## 🗄️ Database Management
+
+**Migration commands:**
+```bash
+npm run migration:generate -- src/infrastructure/database/migrations/MigrationName
+npm run migration:run
+npm run migration:revert
+```
+
+**Schema commands:**
+```bash
+npm run schema:sync    # Sync schema (development only)
+npm run schema:drop    # Drop all tables (be careful!)
+```
+
+**Docker commands:**
+```bash
+docker-compose up -d postgres    # Start PostgreSQL
+docker-compose up -d pgadmin     # Start PgAdmin (optional)
+docker-compose down              # Stop all services
+```
 
 ## 📚 Further Reading
 
