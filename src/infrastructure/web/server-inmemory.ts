@@ -3,24 +3,23 @@ import 'dotenv/config';
 import express from 'express';
 import { UserController } from '../../presentation/controllers/UserController';
 import { UserService } from '../../application/services/UserService';
-import { TypeOrmUserRepository } from '../repositories/TypeOrmUserRepository';
-import { initializeDatabase } from '../database/data-source';
+import { InMemoryUserRepository } from '../repositories/InMemoryUserRepository';
+// import { TypeOrmUserRepository } from '../repositories/TypeOrmUserRepository';
+// import { initializeDatabase } from '../database/data-source';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Initialize database and start server
+// Use InMemoryUserRepository for now (while setting up database)
 async function startServer() {
   try {
-    // Initialize database connection
-    await initializeDatabase();
-    console.log('🔗 Database initialized successfully');
+    console.log('🔗 Using In-Memory Database (for testing)');
 
     // Middleware
     app.use(express.json());
 
-    // Dependency Injection
-    const userRepository = new TypeOrmUserRepository();
+    // Dependency Injection - Using in-memory repository for now
+    const userRepository = new InMemoryUserRepository();
     const userService = new UserService(userRepository);
     const userController = new UserController(userService);
 
@@ -36,7 +35,7 @@ async function startServer() {
       res.json({ 
         status: 'OK', 
         timestamp: new Date().toISOString(),
-        database: 'Connected'
+        database: 'In-Memory (temporary)'
       });
     });
 
@@ -44,6 +43,7 @@ async function startServer() {
       console.log(`🚀 Clean Architecture server running on port ${port}`);
       console.log(`🔍 Health check: http://localhost:${port}/health`);
       console.log(`📡 API endpoints: http://localhost:${port}/api/users`);
+      console.log(`⚠️  Using in-memory database. Start PostgreSQL to use persistent storage.`);
     });
 
   } catch (error) {

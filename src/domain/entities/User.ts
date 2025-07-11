@@ -1,4 +1,5 @@
 import { Entity } from '../common/Entity';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface UserProps {
   email: string;
@@ -43,7 +44,7 @@ export class User extends Entity<string> {
 
   public static create(props: Omit<UserProps, 'createdAt' | 'updatedAt'>): User {
     const now = new Date();
-    const id = Math.random().toString(36).substr(2, 9); // Simple ID generation
+    const id = uuidv4(); // Generate UUID v4
     
     return new User(id, {
       ...props,
