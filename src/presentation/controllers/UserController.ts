@@ -9,8 +9,8 @@ export class UserController {
     try {
       const dto: CreateUserDto = req.body;
       
-      if (!dto.email || !dto.name) {
-        res.status(400).json({ error: 'Email and name are required' });
+      if (!dto.email || !dto.name || !dto.password) {
+        res.status(400).json({ error: 'Email, name, and password are required' });
         return;
       }
 

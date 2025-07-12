@@ -1,4 +1,5 @@
 import { User } from '../../domain/entities/User';
+import { Password } from '../../domain/value-objects/Password';
 import { UserRepository } from '../../domain/repositories/UserRepository';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from '../dtos/UserDto';
 
@@ -12,10 +13,14 @@ export class UserService {
       throw new Error('User with this email already exists');
     }
 
+    // Hash password
+    const password = await Password.create(dto.password);
+
     // Create new user
     const user = User.create({
       email: dto.email,
-      name: dto.name
+      name: dto.name,
+      password: password.value
     });
 
     await this.userRepository.save(user);
@@ -40,6 +45,11 @@ export class UserService {
 
     if (dto.email) {
       user.updateEmail(dto.email);
+    }
+
+    if (dto.password) {
+      const password = await Password.create(dto.password);
+      user.updatePassword(password.value);
     }
 
     await this.userRepository.save(user);

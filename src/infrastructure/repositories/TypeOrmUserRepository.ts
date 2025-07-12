@@ -42,6 +42,7 @@ export class TypeOrmUserRepository implements UserRepository {
         await this.repository.update(user.id, {
           name: user.name,
           email: user.email,
+          password: user.password,
           updatedAt: user.updatedAt,
         });
       } else {

@@ -6,6 +6,7 @@ export class UserMapper {
     return new User(userEntity.id, {
       email: userEntity.email,
       name: userEntity.name,
+      password: userEntity.password,
       createdAt: userEntity.createdAt,
       updatedAt: userEntity.updatedAt,
     });
@@ -16,6 +17,7 @@ export class UserMapper {
     userEntity.id = user.id;
     userEntity.email = user.email;
     userEntity.name = user.name;
+    userEntity.password = user.password;
     userEntity.createdAt = user.createdAt;
     userEntity.updatedAt = user.updatedAt;
     return userEntity;
@@ -25,6 +27,7 @@ export class UserMapper {
     return {
       email: user.email,
       name: user.name,
+      password: user.password,
     };
   }
 }

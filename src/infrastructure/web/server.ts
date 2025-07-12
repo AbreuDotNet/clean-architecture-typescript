@@ -2,8 +2,11 @@ import 'reflect-metadata';
 import 'dotenv/config';
 import express from 'express';
 import { UserController } from '../../presentation/controllers/UserController';
+import { AuthController } from '../../presentation/controllers/AuthController';
 import { UserService } from '../../application/services/UserService';
+import { AuthService } from '../../application/services/AuthService';
 import { TypeOrmUserRepository } from '../repositories/TypeOrmUserRepository';
+import { AuthMiddleware } from './middleware/AuthMiddleware';
 import { initializeDatabase } from '../database/data-source';
 
 const app = express();
@@ -22,28 +25,44 @@ async function startServer() {
     // Dependency Injection
     const userRepository = new TypeOrmUserRepository();
     const userService = new UserService(userRepository);
+    const authService = new AuthService(userRepository);
     const userController = new UserController(userService);
+    const authController = new AuthController(authService);
+    const authMiddleware = new AuthMiddleware(authService);
 
-    // Routes
-    app.get('/api/users', (req, res) => userController.getAllUsers(req, res));
-    app.get('/api/users/:id', (req, res) => userController.getUserById(req, res));
-    app.post('/api/users', (req, res) => userController.createUser(req, res));
-    app.put('/api/users/:id', (req, res) => userController.updateUser(req, res));
-    app.delete('/api/users/:id', (req, res) => userController.deleteUser(req, res));
+    // Auth Routes (Public)
+    app.post('/api/auth/register', (req, res) => authController.register(req, res));
+    app.post('/api/auth/login', (req, res) => authController.login(req, res));
+
+    // Protected Routes - Require Authentication
+    app.get('/api/auth/profile', authMiddleware.authenticate, (req, res) => authController.getProfile(req, res));
+    app.post('/api/auth/logout', authMiddleware.authenticate, (req, res) => authController.logout(req, res));
+
+    // User Routes (Protected)
+    app.get('/api/users', authMiddleware.authenticate, (req, res) => userController.getAllUsers(req, res));
+    app.get('/api/users/:id', authMiddleware.authenticate, (req, res) => userController.getUserById(req, res));
+    app.post('/api/users', authMiddleware.authenticate, (req, res) => userController.createUser(req, res));
+    app.put('/api/users/:id', authMiddleware.authenticate, (req, res) => userController.updateUser(req, res));
+    app.delete('/api/users/:id', authMiddleware.authenticate, (req, res) => userController.deleteUser(req, res));
 
     // Health check
     app.get('/health', (req, res) => {
       res.json({ 
         status: 'OK', 
         timestamp: new Date().toISOString(),
-        database: 'Connected'
+        database: 'PostgreSQL Connected'
       });
     });
 
     app.listen(port, () => {
       console.log(`🚀 Clean Architecture server running on port ${port}`);
       console.log(`🔍 Health check: http://localhost:${port}/health`);
-      console.log(`📡 API endpoints: http://localhost:${port}/api/users`);
+      console.log(`� Auth endpoints:`);
+      console.log(`   POST http://localhost:${port}/api/auth/register`);
+      console.log(`   POST http://localhost:${port}/api/auth/login`);
+      console.log(`   GET  http://localhost:${port}/api/auth/profile (protected)`);
+      console.log(`📡 User endpoints: http://localhost:${port}/api/users (protected)`);
+      console.log(`🗄️  Using PostgreSQL database`);
     });
 
   } catch (error) {
