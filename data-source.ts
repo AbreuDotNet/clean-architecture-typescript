@@ -1,5 +1,9 @@
 import { DataSource } from 'typeorm';
 import { UserEntity } from './src/infrastructure/database/entities/UserEntity';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 export default new DataSource({
   type: 'postgres',

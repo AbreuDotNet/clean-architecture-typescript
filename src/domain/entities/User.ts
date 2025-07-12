@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface UserProps {
   email: string;
   name: string;
+  password: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +25,10 @@ export class User extends Entity<string> {
     return this.props.name;
   }
 
+  get password(): string {
+    return this.props.password;
+  }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -39,6 +44,11 @@ export class User extends Entity<string> {
 
   public updateEmail(email: string): void {
     this.props.email = email;
+    this.props.updatedAt = new Date();
+  }
+
+  public updatePassword(password: string): void {
+    this.props.password = password;
     this.props.updatedAt = new Date();
   }
 
